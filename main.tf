@@ -1,5 +1,5 @@
 module "label" {
-  source     = "git::https://github.com/cloudposse/terraform-null-label.git?ref=tags/0.14.1"
+  source     = "git::https://github.com/Play-n-GO-Platform-Services/terraform-null-label.git?ref=playngoplatformv1.0"
   enabled    = var.enabled
   namespace  = var.namespace
   name       = var.name
@@ -10,70 +10,70 @@ module "label" {
 }
 
 module "label_emr" {
-  source     = "git::https://github.com/cloudposse/terraform-null-label.git?ref=tags/0.14.1"
+  source     = "git::https://github.com/Play-n-GO-Platform-Services/terraform-null-label.git?ref=playngoplatformv1.0"
   enabled    = var.enabled
   context    = module.label.context
   attributes = compact(concat(module.label.attributes, list("emr")))
 }
 
 module "label_ec2" {
-  source     = "git::https://github.com/cloudposse/terraform-null-label.git?ref=tags/0.14.1"
+  source     = "git::https://github.com/Play-n-GO-Platform-Services/terraform-null-label.git?ref=playngoplatformv1.0"
   enabled    = var.enabled
   context    = module.label.context
   attributes = compact(concat(module.label.attributes, list("ec2")))
 }
 
 module "label_ec2_autoscaling" {
-  source     = "git::https://github.com/cloudposse/terraform-null-label.git?ref=tags/0.14.1"
+  source     = "git::https://github.com/Play-n-GO-Platform-Services/terraform-null-label.git?ref=playngoplatformv1.0"
   enabled    = var.enabled
   context    = module.label.context
   attributes = compact(concat(module.label.attributes, list("ec2", "autoscaling")))
 }
 
 module "label_master" {
-  source     = "git::https://github.com/cloudposse/terraform-null-label.git?ref=tags/0.14.1"
+  source     = "git::https://github.com/Play-n-GO-Platform-Services/terraform-null-label.git?ref=playngoplatformv1.0"
   enabled    = var.enabled
   context    = module.label.context
   attributes = compact(concat(module.label.attributes, list("master")))
 }
 
 module "label_slave" {
-  source     = "git::https://github.com/cloudposse/terraform-null-label.git?ref=tags/0.14.1"
+  source     = "git::https://github.com/Play-n-GO-Platform-Services/terraform-null-label.git?ref=playngoplatformv1.0"
   enabled    = var.enabled
   context    = module.label.context
   attributes = compact(concat(module.label.attributes, list("slave")))
 }
 
 module "label_core" {
-  source     = "git::https://github.com/cloudposse/terraform-null-label.git?ref=tags/0.14.1"
+  source     = "git::https://github.com/Play-n-GO-Platform-Services/terraform-null-label.git?ref=playngoplatformv1.0"
   enabled    = var.enabled
   context    = module.label.context
   attributes = compact(concat(module.label.attributes, list("core")))
 }
 
 module "label_task" {
-  source     = "git::https://github.com/cloudposse/terraform-null-label.git?ref=tags/0.14.1"
+  source     = "git::https://github.com/Play-n-GO-Platform-Services/terraform-null-label.git?ref=playngoplatformv1.0"
   enabled    = var.enabled && var.create_task_instance_group
   context    = module.label.context
   attributes = compact(concat(module.label.attributes, list("task")))
 }
 
 module "label_master_managed" {
-  source     = "git::https://github.com/cloudposse/terraform-null-label.git?ref=tags/0.14.1"
+  source     = "git::https://github.com/Play-n-GO-Platform-Services/terraform-null-label.git?ref=playngoplatformv1.0"
   enabled    = var.enabled
   context    = module.label.context
   attributes = compact(concat(module.label.attributes, list("master", "managed")))
 }
 
 module "label_slave_managed" {
-  source     = "git::https://github.com/cloudposse/terraform-null-label.git?ref=tags/0.14.1"
+  source     = "git::https://github.com/Play-n-GO-Platform-Services/terraform-null-label.git?ref=playngoplatformv1.0"
   enabled    = var.enabled
   context    = module.label.context
   attributes = compact(concat(module.label.attributes, list("slave", "managed")))
 }
 
 module "label_service_managed" {
-  source     = "git::https://github.com/cloudposse/terraform-null-label.git?ref=tags/0.14.1"
+  source     = "git::https://github.com/Play-n-GO-Platform-Services/terraform-null-label.git?ref=playngoplatformv1.0"
   enabled    = var.enabled
   context    = module.label.context
   attributes = compact(concat(module.label.attributes, list("service", "managed")))
@@ -454,7 +454,7 @@ resource "aws_emr_instance_group" "task" {
 }
 
 module "dns_master" {
-  source  = "git::https://github.com/cloudposse/terraform-aws-route53-cluster-hostname.git?ref=tags/0.3.0"
+  source  = "git::https://github.com/Play-n-GO-Platform-Services/terraform-aws-route53-cluster-hostname.git?ref=playngoplatformv1.0"
   enabled = var.enabled && var.zone_id != null && var.zone_id != "" ? true : false
   name    = var.master_dns_name != null && var.master_dns_name != "" ? var.master_dns_name : "emr-master-${var.name}"
   zone_id = var.zone_id
