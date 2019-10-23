@@ -124,8 +124,8 @@ resource "aws_security_group_rule" "managed_master_egress" {
 
 module "ssh_security_group" {
   source                 = "git::https://github.com/Play-n-GO-Platform-Services/terraform-aws-security-group.git//modules/ssh?ref=playngoplatformv1.0"  
-  cidr_blocks            = ["0.0.0.0/0"]
-  ipv6_cidr_blocks       = ["::/0"]
+  ingress_cidr_blocks            = ["0.0.0.0/0"]
+  ingress_ipv6_cidr_blocks       = ["::/0"]
   description            = "SSH ingress"
   vpc_id                 = var.vpc_id
   name                   = module.label_master_managed.id
