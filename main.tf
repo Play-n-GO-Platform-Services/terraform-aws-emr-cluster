@@ -120,6 +120,14 @@ resource "aws_security_group_rule" "managed_master_egress" {
   security_group_id = join("", aws_security_group.managed_master.*.id)
 }
 
+####https://www.terraform.io/docs/modules/sources.html#modules-in-package-sub-directories
+
+module "ssh_security_group" {
+  source                 = "git::https://github.com/Play-n-GO-Platform-Services/terraform-aws-security-group.git//modules/ssh?ref=playngoplatformv1.0"  
+  vpc_id                 = var.vpc_id
+  name                   = module.label_master_managed.id
+}
+
 resource "aws_security_group" "managed_slave" {
   count                  = var.enabled ? 1 : 0
   revoke_rules_on_delete = true
