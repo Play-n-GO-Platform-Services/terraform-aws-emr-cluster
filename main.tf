@@ -123,7 +123,7 @@ resource "aws_security_group_rule" "managed_master_egress" {
 ####https://www.terraform.io/docs/modules/sources.html#modules-in-package-sub-directories
 
 module "ssh_security_group" {
-  source                 = "git::https://github.com/Play-n-GO-Platform-Services/terraform-aws-security-group.git//modules/ssh?ref=playngoplatformv1.0"  
+  source                 = "terraform-aws-modules/security-group/aws//modules/ssh"  
   ingress_cidr_blocks            = ["0.0.0.0/0"]
   ingress_ipv6_cidr_blocks       = ["::/0"]
   description            = "SSHIngress"
@@ -369,7 +369,7 @@ resource "aws_emr_cluster" "default" {
   ec2_attributes {
     key_name                          = var.key_name
     subnet_id                         = var.subnet_id
-    emr_managed_master_security_group = join("", aws_security_group.managed_master.*.id,module.ssh_security_group.this_security_group_id)
+    emr_managed_master_security_group = join("", aws_security_group.managed_master.*.id,module.ssh_security_group.*.this_security_group_id)
     emr_managed_slave_security_group  = join("", aws_security_group.managed_slave.*.id)
     service_access_security_group     = var.subnet_type == "private" ? join("", aws_security_group.managed_service_access.*.id) : null
     instance_profile                  = join("", aws_iam_instance_profile.ec2.*.arn)
