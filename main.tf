@@ -79,6 +79,13 @@ module "label_service_managed" {
   attributes = compact(concat(module.label.attributes, list("service", "managed")))
 }
 
+module "label_master_ssh" {
+  source     = "git::https://github.com/Play-n-GO-Platform-Services/terraform-null-label.git?ref=playngoplatformv1.0"
+  enabled    = var.enabled
+  context    = module.label.context
+  attributes = compact(concat(module.label.attributes, list("master","ssh")))
+}
+
 /*
 NOTE on EMR-Managed security groups: These security groups will have any missing inbound or outbound access rules added and maintained by AWS,
 to ensure proper communication between instances in a cluster. The EMR service will maintain these rules for groups provided
@@ -108,6 +115,18 @@ resource "aws_security_group" "managed_master" {
   }
 }
 
+####https://www.terraform.io/docs/modules/sources.html#modules-in-package-sub-directories
+
+module "ssh_security_group" {
+  source                 = "terraform-aws-modules/security-group/aws//modules/ssh"  
+  ingress_cidr_blocks            = ["0.0.0.0/0"]
+  ingress_ipv6_cidr_blocks       = ["::/0"]
+  description            = "SSHIngress"
+  vpc_id                 = var.vpc_id
+  name                   = module.label_master_ssh.id
+}
+
+
 resource "aws_security_group_rule" "managed_master_egress" {
   count             = var.enabled ? 1 : 0
   description       = "Allow all egress traffic"
@@ -118,17 +137,6 @@ resource "aws_security_group_rule" "managed_master_egress" {
   cidr_blocks       = ["0.0.0.0/0"]
   ipv6_cidr_blocks  = ["::/0"]
   security_group_id = join("", aws_security_group.managed_master.*.id)
-}
-
-####https://www.terraform.io/docs/modules/sources.html#modules-in-package-sub-directories
-
-module "ssh_security_group" {
-  source                 = "terraform-aws-modules/security-group/aws//modules/ssh"  
-  ingress_cidr_blocks            = ["0.0.0.0/0"]
-  ingress_ipv6_cidr_blocks       = ["::/0"]
-  description            = "SSHIngress"
-  vpc_id                 = var.vpc_id
-  name                   = module.label_master_managed.id
 }
 
 resource "aws_security_group" "managed_slave" {
@@ -373,7 +381,7 @@ resource "aws_emr_cluster" "default" {
     emr_managed_slave_security_group  = join("", aws_security_group.managed_slave.*.id)
     service_access_security_group     = var.subnet_type == "private" ? join("", aws_security_group.managed_service_access.*.id) : null
     instance_profile                  = join("", aws_iam_instance_profile.ec2.*.arn)
-    additional_master_security_groups = join("", aws_security_group.master.*.id,[module.ssh_security_group.this_security_group_id])
+    additional_master_security_groups = join(", ", aws_security_group.master.*.id,[module.ssh_security_group.this_security_group_id])
     additional_slave_security_groups  = join("", aws_security_group.slave.*.id)
   }
 
