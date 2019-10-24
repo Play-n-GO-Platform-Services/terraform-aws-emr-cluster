@@ -250,7 +250,7 @@ resource "aws_security_group_rule" "master_ingress_custom_security_groups" {
   to_port                  = 65535
   protocol                 = "tcp"
   source_security_group_id = var.master_allowed_security_groups[count.index]
-  security_group_id        = join("", aws_security_group.label_master_custom.*.id)
+  security_group_id        = join("", aws_security_group.master_custom.*.id)
 }
 
 resource "aws_security_group_rule" "master_ingress_custom_cidr_blocks" {
@@ -262,7 +262,7 @@ resource "aws_security_group_rule" "master_ingress_custom_cidr_blocks" {
   protocol          = "tcp"
   cidr_blocks       = var.master_allowed_custom_cidr_blocks
   ipv6_cidr_blocks  = var.master_ingress_custom_ipv6_cidr_blocks
-  security_group_id = join("", aws_security_group.label_master_custom.*.id)
+  security_group_id = join("", aws_security_group.master_custom.*.id)
 }
 
 
