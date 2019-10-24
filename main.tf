@@ -424,7 +424,7 @@ resource "aws_emr_cluster" "default" {
     emr_managed_slave_security_group  = join("", aws_security_group.managed_slave.*.id)
     service_access_security_group     = var.subnet_type == "private" ? join("", aws_security_group.managed_service_access.*.id) : null
     instance_profile                  = join("", aws_iam_instance_profile.ec2.*.arn)
-    additional_master_security_groups = join(", ", aws_security_group.master.*.id,[module.ssh_security_group.this_security_group_id])
+    additional_master_security_groups = join(", ", aws_security_group.master.*.id,[module.ssh_security_group.this_security_group_id],[aws_security_group.master_custom.*.id])
     additional_slave_security_groups  = join("", aws_security_group.slave.*.id)
   }
 
