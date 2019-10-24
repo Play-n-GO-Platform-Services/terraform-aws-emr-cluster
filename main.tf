@@ -117,10 +117,12 @@ resource "aws_security_group" "managed_master" {
 
 ####https://www.terraform.io/docs/modules/sources.html#modules-in-package-sub-directories
 
+#Adding custom rules to add the ip addresses from where we can connect to EMR. need to change the cidr blocks 
+
 module "ssh_security_group" {
   source                 = "terraform-aws-modules/security-group/aws//modules/ssh"  
-  ingress_cidr_blocks            = ["0.0.0.0/0"]
-  ingress_ipv6_cidr_blocks       = ["::/0"]
+  ingress_cidr_blocks            = var.master_allowed_custom_cidr_blocks
+  ingress_ipv6_cidr_blocks       = var.master_ingress_custom_ipv6_cidr_blocks
   description            = "SSHIngress"
   vpc_id                 = var.vpc_id
   name                   = module.label_master_ssh.id
@@ -222,6 +224,21 @@ resource "aws_security_group_rule" "master_ingress_cidr_blocks" {
   cidr_blocks       = var.master_allowed_cidr_blocks
   security_group_id = join("", aws_security_group.master.*.id)
 }
+
+#Adding custom rules to add the ip addresses from where we can connect to EMR
+
+resource "aws_security_group_rule" "master_ingress_custom_cidr_blocks" {
+  count             = var.enabled && length(var.master_allowed_cidr_blocks) > 0 ? 1 : 0
+  description       = "Allow inbound traffic from custom CIDR blocks"
+  type              = "ingress"
+  from_port         = 0
+  to_port           = 65535
+  protocol          = "tcp"
+  cidr_blocks       = var.master_allowed_custom_cidr_blocks
+  ipv6_cidr_blocks  = var.master_ingress_custom_ipv6_cidr_blocks
+  security_group_id = join("", aws_security_group.master.*.id)
+}
+
 
 resource "aws_security_group_rule" "master_egress" {
   count             = var.enabled ? 1 : 0

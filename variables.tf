@@ -335,3 +335,16 @@ variable "bootstrap_action" {
   description = "List of bootstrap actions that will be run before Hadoop is started on the cluster nodes"
   default     = []
 }
+
+#Custom variables to allow traffic
+variable "master_allowed_custom_cidr_blocks" {
+  type        = list(string)
+  default     = []
+  description = "List of CIDR blocks to be allowed to access the master instances"
+}
+
+variable "master_ingress_custom_ipv6_cidr_blocks" {
+  type        = list(string)
+  default     = []
+  description = "List of CIDR blocks to be allowed to access the master instances"
+}
