@@ -226,9 +226,18 @@ resource "aws_security_group_rule" "master_ingress_cidr_blocks" {
 }
 
 #Adding custom rules to add the ip addresses from where we can connect to EMR
+resource "aws_security_group_rule" "master_ingress_custom_security_groups" {
+  count                    = var.enabled ? length(var.master_allowed_custom_cidr_blocks) : 0
+  description              = "Allow inbound traffic from Security Groups"
+  type                     = "ingress"
+  from_port                = 0
+  to_port                  = 65535
+  protocol                 = "tcp"
+  source_security_group_id = var.master_allowed_security_groups[count.index]
+  security_group_id        = join("", aws_security_group.master.*.id)
 
 resource "aws_security_group_rule" "master_ingress_custom_cidr_blocks" {
-  count             = var.enabled && length(var.master_allowed_cidr_blocks) > 0 ? 1 : 0
+  count             = var.enabled && length(var.master_allowed_custom_cidr_blocks) > 0 ? 1 : 0
   description       = "Allow inbound traffic from custom CIDR blocks"
   type              = "ingress"
   from_port         = 0
