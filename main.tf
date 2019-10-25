@@ -86,12 +86,7 @@ module "label_master_ssh" {
   attributes = compact(concat(module.label.attributes, list("master","ssh")))
 }
 
-module "label_master_custom" {
-  source     = "git::https://github.com/Play-n-GO-Platform-Services/terraform-null-label.git?ref=playngoplatformv1.0"
-  enabled    = var.enabled
-  context    = module.label.context
-  attributes = compact(concat(module.label.attributes, list("master","custom")))
-}
+
 
 /*
 NOTE on EMR-Managed security groups: These security groups will have any missing inbound or outbound access rules added and maintained by AWS,
@@ -231,40 +226,6 @@ resource "aws_security_group_rule" "master_ingress_cidr_blocks" {
   cidr_blocks       = var.master_allowed_cidr_blocks
   security_group_id = join("", aws_security_group.master.*.id)
 }
-
-#Adding custom rules to add the ip addresses from where we can connect to EMR
-resource "aws_security_group" "master_custom" {
-  count                  = var.enabled ? 1 : 0
-  revoke_rules_on_delete = true
-  vpc_id                 = var.vpc_id
-  name                   = module.label_master_custom.id
-  description            = "Allow custom inbound traffic from Security Groups and CIDRs for masters. Allow all outbound traffic"
-  tags                   = module.label_master_custom.tags
-}
-
-resource "aws_security_group_rule" "master_ingress_custom_security_groups" {
-  count                    = var.enabled ? length(var.master_allowed_custom_cidr_blocks) : 0
-  description              = "Allow inbound traffic from Security Groups"
-  type                     = "ingress"
-  from_port                = 0
-  to_port                  = 65535
-  protocol                 = "tcp"
-  source_security_group_id = var.master_allowed_security_groups[count.index]
-  security_group_id        = join("", aws_security_group.master_custom.*.id)
-}
-
-resource "aws_security_group_rule" "master_ingress_custom_cidr_blocks" {
-  count             = var.enabled && length(var.master_allowed_custom_cidr_blocks) > 0 ? 1 : 0
-  description       = "Allow inbound traffic from custom CIDR blocks"
-  type              = "ingress"
-  from_port         = 0
-  to_port           = 65535
-  protocol          = "tcp"
-  cidr_blocks       = var.master_allowed_custom_cidr_blocks
-  ipv6_cidr_blocks  = var.master_ingress_custom_ipv6_cidr_blocks
-  security_group_id = join("", aws_security_group.master_custom.*.id)
-}
-
 
 resource "aws_security_group_rule" "master_egress" {
   count             = var.enabled ? 1 : 0
