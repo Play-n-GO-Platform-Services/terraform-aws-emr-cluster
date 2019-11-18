@@ -91,7 +91,7 @@ module "label_slave_ssh" {
   enabled    = var.enabled
   context    = module.label.context
   attributes = compact(concat(module.label.attributes, list("slave","ssh")))
-
+}
 
 module "label_master_custom" {
   source     = "git::https://github.com/Play-n-GO-Platform-Services/terraform-null-label.git?ref=playngoplatformv1.0"
