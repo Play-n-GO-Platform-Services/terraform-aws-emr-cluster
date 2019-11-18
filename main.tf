@@ -86,6 +86,13 @@ module "label_master_ssh" {
   attributes = compact(concat(module.label.attributes, list("master","ssh")))
 }
 
+module "label_slave_ssh" {
+  source     = "git::https://github.com/Play-n-GO-Platform-Services/terraform-null-label.git?ref=playngoplatformv1.0"
+  enabled    = var.enabled
+  context    = module.label.context
+  attributes = compact(concat(module.label.attributes, list("slave","ssh")))
+
+
 module "label_master_custom" {
   source     = "git::https://github.com/Play-n-GO-Platform-Services/terraform-null-label.git?ref=playngoplatformv1.0"
   enabled    = var.enabled
@@ -126,7 +133,7 @@ resource "aws_security_group" "managed_master" {
 
 #Adding custom rules to add the ip addresses from where we can connect to EMR. need to change the cidr blocks 
 
-module "ssh_security_group" {
+module "ssh_master_security_group" {
   source                 = "terraform-aws-modules/security-group/aws//modules/ssh"  
   ingress_cidr_blocks            = var.master_allowed_custom_cidr_blocks
   ingress_ipv6_cidr_blocks       = var.master_ingress_custom_ipv6_cidr_blocks
@@ -135,6 +142,14 @@ module "ssh_security_group" {
   name                   = module.label_master_ssh.id
 }
 
+module "ssh_slave_security_group" {
+  source                 = "terraform-aws-modules/security-group/aws//modules/ssh"  
+  ingress_cidr_blocks            = var.master_allowed_custom_cidr_blocks
+  ingress_ipv6_cidr_blocks       = var.master_ingress_custom_ipv6_cidr_blocks
+  description            = "SSHIngress"
+  vpc_id                 = var.vpc_id
+  name                   = module.label_slave_ssh.id
+}
 
 resource "aws_security_group_rule" "managed_master_egress" {
   count             = var.enabled ? 1 : 0
@@ -424,8 +439,8 @@ resource "aws_emr_cluster" "default" {
     emr_managed_slave_security_group  = join("", aws_security_group.managed_slave.*.id)
     service_access_security_group     = var.subnet_type == "private" ? join("", aws_security_group.managed_service_access.*.id) : null
     instance_profile                  = join("", aws_iam_instance_profile.ec2.*.arn)
-    additional_master_security_groups = join(",", aws_security_group.master.*.id,[module.ssh_security_group.this_security_group_id],aws_security_group.master_custom.*.id)
-    additional_slave_security_groups  = join("", aws_security_group.slave.*.id)
+    additional_master_security_groups = join(",", aws_security_group.master.*.id,[module.ssh_master_security_group.this_security_group_id],aws_security_group.master_custom.*.id)
+    additional_slave_security_groups  = join(",", aws_security_group.slave.*.id,[module.ssh_slave_security_group.this_security_group_id])
   }
 
   termination_protection            = var.termination_protection
