@@ -134,6 +134,7 @@ resource "aws_security_group" "managed_master" {
 #Adding custom rules to add the ip addresses from where we can connect to EMR. need to change the cidr blocks 
 
 module "ssh_master_security_group" {
+  create                 = var.enabled ? true : false
   source                 = "terraform-aws-modules/security-group/aws//modules/ssh"  
   ingress_cidr_blocks            = var.master_allowed_custom_cidr_blocks
   ingress_ipv6_cidr_blocks       = var.master_ingress_custom_ipv6_cidr_blocks
@@ -143,6 +144,7 @@ module "ssh_master_security_group" {
 }
 
 module "ssh_slave_security_group" {
+  create                 = var.enabled ? true : false
   source                 = "terraform-aws-modules/security-group/aws//modules/ssh"  
   ingress_cidr_blocks            = var.master_allowed_custom_cidr_blocks
   ingress_ipv6_cidr_blocks       = var.master_ingress_custom_ipv6_cidr_blocks
