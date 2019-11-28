@@ -134,7 +134,7 @@ resource "aws_security_group" "managed_master" {
 #Adding custom rules to add the ip addresses from where we can connect to EMR. need to change the cidr blocks 
 
 module "ssh_master_security_group" {
-  create                 = false
+  create                 = var.enabled ? true : false
   source                 = "terraform-aws-modules/security-group/aws//modules/ssh"  
   ingress_cidr_blocks            = var.master_allowed_custom_cidr_blocks
   ingress_ipv6_cidr_blocks       = var.master_ingress_custom_ipv6_cidr_blocks
@@ -144,7 +144,7 @@ module "ssh_master_security_group" {
 }
 
 module "ssh_slave_security_group" {
-  create                 = false
+  create                 = var.enabled ? true : false
   source                 = "terraform-aws-modules/security-group/aws//modules/ssh"  
   ingress_cidr_blocks            = var.master_allowed_custom_cidr_blocks
   ingress_ipv6_cidr_blocks       = var.master_ingress_custom_ipv6_cidr_blocks
@@ -251,7 +251,7 @@ resource "aws_security_group_rule" "master_ingress_cidr_blocks" {
 
 #Adding custom rules to add the ip addresses from where we can connect to EMR
 resource "aws_security_group" "master_custom" {
-  count                  = 0
+  count                  = var.enabled ? 1 : 0
   revoke_rules_on_delete = true
   vpc_id                 = var.vpc_id
   name                   = module.label_master_custom.id
@@ -260,7 +260,7 @@ resource "aws_security_group" "master_custom" {
 }
 
 resource "aws_security_group_rule" "master_ingress_custom_security_groups" {
-  count                    = 0
+  count                    = var.enabled ? length(var.master_allowed_custom_cidr_blocks) : 0
   description              = "Allow inbound traffic from Security Groups"
   type                     = "ingress"
   from_port                = 0
@@ -271,7 +271,7 @@ resource "aws_security_group_rule" "master_ingress_custom_security_groups" {
 }
 
 resource "aws_security_group_rule" "master_ingress_custom_cidr_blocks" {
-  count             = 0
+  count             = var.enabled && length(var.master_allowed_custom_cidr_blocks) > 0 ? 1 : 0
   description       = "Allow inbound traffic from custom CIDR blocks"
   type              = "ingress"
   from_port         = 0
