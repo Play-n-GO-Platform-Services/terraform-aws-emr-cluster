@@ -266,7 +266,6 @@ resource "aws_security_group_rule" "master_ingress_custom_security_groups" {
   from_port                = 0
   to_port                  = 65535
   protocol                 = "tcp"
-  source_security_group_id = var.master_allowed_security_groups[count.index]
   security_group_id        = join("", aws_security_group.master_custom.*.id)
 }
 
