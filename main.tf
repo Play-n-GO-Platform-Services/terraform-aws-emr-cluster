@@ -260,7 +260,7 @@ resource "aws_security_group" "master_custom" {
 }
 
 resource "aws_security_group_rule" "master_ingress_custom_security_groups" {
-  count                    = var.enabled ? llength(var.master_allowed_security_groups) : 0
+  count                    = var.enabled ? length(var.master_allowed_security_groups) : 0
   description              = "Allow inbound traffic from Security Groups"
   type                     = "ingress"
   from_port                = 0
