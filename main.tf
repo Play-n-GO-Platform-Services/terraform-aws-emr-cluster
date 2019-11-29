@@ -134,23 +134,23 @@ resource "aws_security_group" "managed_master" {
 #Adding custom rules to add the ip addresses from where we can connect to EMR. need to change the cidr blocks 
 
 module "ssh_master_security_group" {
-  create                 = var.enabled ? true : false
-  source                 = "terraform-aws-modules/security-group/aws//modules/ssh"  
+  create                         = var.enabled ? true : false
+  source                         = "terraform-aws-modules/security-group/aws//modules/ssh"  
   ingress_cidr_blocks            = var.master_allowed_custom_cidr_blocks
   ingress_ipv6_cidr_blocks       = var.master_ingress_custom_ipv6_cidr_blocks
-  description            = "SSHIngress"
-  vpc_id                 = var.vpc_id
-  name                   = module.label_master_ssh.id
+  description                    = "SSHIngress"
+  vpc_id                         = var.vpc_id
+  name                           = module.label_master_ssh.id
 }
 
 module "ssh_slave_security_group" {
-  create                 = var.enabled ? true : false
-  source                 = "terraform-aws-modules/security-group/aws//modules/ssh"  
+  create                         = var.enabled ? true : false
+  source                         = "terraform-aws-modules/security-group/aws//modules/ssh"  
   ingress_cidr_blocks            = var.master_allowed_custom_cidr_blocks
   ingress_ipv6_cidr_blocks       = var.master_ingress_custom_ipv6_cidr_blocks
-  description            = "SSHIngress"
-  vpc_id                 = var.vpc_id
-  name                   = module.label_slave_ssh.id
+  description                    = "SSHIngress"
+  vpc_id                         = var.vpc_id
+  name                           = module.label_slave_ssh.id
 }
 
 resource "aws_security_group_rule" "managed_master_egress" {
@@ -257,16 +257,6 @@ resource "aws_security_group" "master_custom" {
   name                   = module.label_master_custom.id
   description            = "Allow custom inbound traffic from Security Groups and CIDRs for masters. Allow all outbound traffic"
   tags                   = module.label_master_custom.tags
-}
-
-resource "aws_security_group_rule" "master_ingress_custom_security_groups" {
-  count                    = var.enabled ? length(var.master_allowed_custom_cidr_blocks) : 0
-  description              = "Allow inbound traffic from Security Groups"
-  type                     = "ingress"
-  from_port                = 0
-  to_port                  = 65535
-  protocol                 = "tcp"
-  security_group_id        = join("", aws_security_group.master_custom.*.id)
 }
 
 resource "aws_security_group_rule" "master_ingress_custom_cidr_blocks" {
