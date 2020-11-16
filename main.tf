@@ -441,7 +441,7 @@ resource "aws_emr_cluster" "default" {
     service_access_security_group     = var.subnet_type == "private" ? join("", aws_security_group.managed_service_access.*.id) : null
     instance_profile                  = join("", aws_iam_instance_profile.ec2.*.arn)
     additional_master_security_groups = var.use_existing_subnets ? join(",", var.master_sec_group,var.master_ssh_sec_group,var.master_custom_sec_group) : join(",", aws_security_group.master.*.id,[module.ssh_master_security_group.this_security_group_id],aws_security_group.master_custom.*.id)
-    additional_slave_security_groups  = var.use_existing_subnets ? join(",", aws_security_group.slave.*.id,[module.ssh_slave_security_group.this_security_group_id]) : join(",", aws_security_group.slave.*.id,[module.ssh_slave_security_group.this_security_group_id])
+    additional_slave_security_groups  = var.use_existing_subnets ? join(",", var.slave_sec_group, var.slave_ssh_sec_group) : join(",", aws_security_group.slave.*.id,[module.ssh_slave_security_group.this_security_group_id])
   }
 
   termination_protection            = var.termination_protection
