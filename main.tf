@@ -116,7 +116,7 @@ emr_managed_master_security_group and emr_managed_slave_security_group.
 # https://docs.aws.amazon.com/emr/latest/ManagementGuide/emr-clusters-in-a-vpc.html
 
 resource "aws_security_group" "managed_master" {
-  count                  = var.enabled ? 1 : 0
+  count                  = (var.enabled && var.use_existing_subnets == false) ? 1 : 0
   revoke_rules_on_delete = true
   vpc_id                 = var.vpc_id
   name                   = module.label_master_managed.id
@@ -134,7 +134,7 @@ resource "aws_security_group" "managed_master" {
 #Adding custom rules to add the ip addresses from where we can connect to EMR. need to change the cidr blocks 
 
 module "ssh_master_security_group" {
-  create                         = var.enabled ? true : false
+  create                         = (var.enabled && var.use_existing_subnets == false) ? true : false
   source                         = "terraform-aws-modules/security-group/aws//modules/ssh"  
   ingress_cidr_blocks            = var.master_allowed_custom_cidr_blocks
   ingress_ipv6_cidr_blocks       = var.master_ingress_custom_ipv6_cidr_blocks
@@ -144,7 +144,7 @@ module "ssh_master_security_group" {
 }
 
 module "ssh_slave_security_group" {
-  create                         = var.enabled ? true : false
+  create                         = (var.enabled && var.use_existing_subnets == false) ? true : false
   source                         = "terraform-aws-modules/security-group/aws//modules/ssh"  
   ingress_cidr_blocks            = var.master_allowed_custom_cidr_blocks
   ingress_ipv6_cidr_blocks       = var.master_ingress_custom_ipv6_cidr_blocks
@@ -154,7 +154,7 @@ module "ssh_slave_security_group" {
 }
 
 resource "aws_security_group_rule" "managed_master_egress" {
-  count             = var.enabled ? 1 : 0
+  count             = (var.enabled && var.use_existing_subnets == false) ? 1 : 0
   description       = "Allow all egress traffic"
   type              = "egress"
   from_port         = 0
@@ -166,7 +166,7 @@ resource "aws_security_group_rule" "managed_master_egress" {
 }
 
 resource "aws_security_group" "managed_slave" {
-  count                  = var.enabled ? 1 : 0
+  count                  = (var.enabled && var.use_existing_subnets == false) ? 1 : 0
   revoke_rules_on_delete = true
   vpc_id                 = var.vpc_id
   name                   = module.label_slave_managed.id
@@ -180,7 +180,7 @@ resource "aws_security_group" "managed_slave" {
 }
 
 resource "aws_security_group_rule" "managed_slave_egress" {
-  count             = var.enabled ? 1 : 0
+  count             = (var.enabled && var.use_existing_subnets == false) ? 1 : 0
   description       = "Allow all egress traffic"
   type              = "egress"
   from_port         = 0
@@ -219,7 +219,7 @@ resource "aws_security_group_rule" "managed_service_access_egress" {
 
 # Specify additional master and slave security groups
 resource "aws_security_group" "master" {
-  count                  = var.enabled ? 1 : 0
+  count                  = (var.enabled && var.use_existing_subnets == false) ? 1 : 0
   revoke_rules_on_delete = true
   vpc_id                 = var.vpc_id
   name                   = module.label_master.id
@@ -228,7 +228,7 @@ resource "aws_security_group" "master" {
 }
 
 resource "aws_security_group_rule" "master_ingress_security_groups" {
-  count                    = var.enabled ? length(var.master_allowed_security_groups) : 0
+  count                    = (var.enabled && var.use_existing_subnets == false) ? length(var.master_allowed_security_groups) : 0
   description              = "Allow inbound traffic from Security Groups"
   type                     = "ingress"
   from_port                = 0
@@ -239,7 +239,7 @@ resource "aws_security_group_rule" "master_ingress_security_groups" {
 }
 
 resource "aws_security_group_rule" "master_ingress_cidr_blocks" {
-  count             = var.enabled && length(var.master_allowed_cidr_blocks) > 0 ? 1 : 0
+  count             = (var.enabled && var.use_existing_subnets == false && length(var.master_allowed_cidr_blocks)) > 0 ? 1 : 0
   description       = "Allow inbound traffic from CIDR blocks"
   type              = "ingress"
   from_port         = 0
@@ -251,7 +251,7 @@ resource "aws_security_group_rule" "master_ingress_cidr_blocks" {
 
 #Adding custom rules to add the ip addresses from where we can connect to EMR
 resource "aws_security_group" "master_custom" {
-  count                  = var.enabled ? 1 : 0
+  count                  = (var.enabled && var.use_existing_subnets == false) ? 1 : 0
   revoke_rules_on_delete = true
   vpc_id                 = var.vpc_id
   name                   = module.label_master_custom.id
@@ -260,7 +260,7 @@ resource "aws_security_group" "master_custom" {
 }
 
 resource "aws_security_group_rule" "master_ingress_custom_security_groups" {
-  count                    = var.enabled ? length(var.master_allowed_security_groups) : 0
+  count                    = (var.enabled && var.use_existing_subnets == false) ? length(var.master_allowed_security_groups) : 0
   description              = "Allow inbound traffic from Security Groups"
   type                     = "ingress"
   from_port                = 0
@@ -271,7 +271,7 @@ resource "aws_security_group_rule" "master_ingress_custom_security_groups" {
 }
 
 resource "aws_security_group_rule" "master_ingress_custom_cidr_blocks" {
-  count             = var.enabled ? length(var.master_allowed_security_groups) : 0
+  count             = (var.enabled && var.use_existing_subnets == false) ? length(var.master_allowed_security_groups) : 0
   description       = "Allow inbound traffic from custom CIDR blocks"
   type              = "ingress"
   from_port         = 0
@@ -283,7 +283,7 @@ resource "aws_security_group_rule" "master_ingress_custom_cidr_blocks" {
 
 
 resource "aws_security_group_rule" "master_egress" {
-  count             = var.enabled ? 1 : 0
+  count             = (var.enabled && var.use_existing_subnets == false) ? 1 : 0
   description       = "Allow all egress traffic"
   type              = "egress"
   from_port         = 0
@@ -294,7 +294,7 @@ resource "aws_security_group_rule" "master_egress" {
 }
 
 resource "aws_security_group" "slave" {
-  count                  = var.enabled ? 1 : 0
+  count                  = (var.enabled && var.use_existing_subnets == false) ? 1 : 0
   revoke_rules_on_delete = true
   vpc_id                 = var.vpc_id
   name                   = module.label_slave.id
@@ -303,7 +303,7 @@ resource "aws_security_group" "slave" {
 }
 
 resource "aws_security_group_rule" "slave_ingress_security_groups" {
-  count                    = var.enabled ? length(var.slave_allowed_security_groups) : 0
+  count                    = (var.enabled && var.use_existing_subnets == false) ? length(var.slave_allowed_security_groups) : 0
   description              = "Allow inbound traffic from Security Groups"
   type                     = "ingress"
   from_port                = 0
@@ -314,7 +314,7 @@ resource "aws_security_group_rule" "slave_ingress_security_groups" {
 }
 
 resource "aws_security_group_rule" "slave_ingress_cidr_blocks" {
-  count             = var.enabled && length(var.slave_allowed_cidr_blocks) > 0 ? 1 : 0
+  count             = (var.enabled && var.use_existing_subnets == false && length(var.slave_allowed_cidr_blocks)) > 0 ? 1 : 0
   description       = "Allow inbound traffic from CIDR blocks"
   type              = "ingress"
   from_port         = 0
@@ -325,7 +325,7 @@ resource "aws_security_group_rule" "slave_ingress_cidr_blocks" {
 }
 
 resource "aws_security_group_rule" "slave_egress" {
-  count             = var.enabled ? 1 : 0
+  count             = (var.enabled && var.use_existing_subnets == false) ? 1 : 0
   description       = "Allow all egress traffic"
   type              = "egress"
   from_port         = 0
@@ -436,12 +436,12 @@ resource "aws_emr_cluster" "default" {
   ec2_attributes {
     key_name                          = var.key_name
     subnet_id                         = var.subnet_id
-    emr_managed_master_security_group = join("", aws_security_group.managed_master.*.id)
-    emr_managed_slave_security_group  = join("", aws_security_group.managed_slave.*.id)
+    emr_managed_master_security_group = var.use_existing_subnets ? join("", var.master_managed_sec_group) : join("", aws_security_group.managed_master.*.id)
+    emr_managed_slave_security_group  = var.use_existing_subnets ? join("", var.slave_managed_sec_group) : join("", aws_security_group.managed_slave.*.id)
     service_access_security_group     = var.subnet_type == "private" ? join("", aws_security_group.managed_service_access.*.id) : null
     instance_profile                  = join("", aws_iam_instance_profile.ec2.*.arn)
-    additional_master_security_groups = join(",", aws_security_group.master.*.id,[module.ssh_master_security_group.this_security_group_id],aws_security_group.master_custom.*.id)
-    additional_slave_security_groups  = join(",", aws_security_group.slave.*.id,[module.ssh_slave_security_group.this_security_group_id])
+    additional_master_security_groups = var.use_existing_subnets ? join(",", var.master_sec_group,var.master_ssh_sec_group,var.master_custom_sec_group) : join(",", aws_security_group.master.*.id,[module.ssh_master_security_group.this_security_group_id],aws_security_group.master_custom.*.id)
+    additional_slave_security_groups  = var.use_existing_subnets ? join(",", aws_security_group.slave.*.id,[module.ssh_slave_security_group.this_security_group_id]) : join(",", aws_security_group.slave.*.id,[module.ssh_slave_security_group.this_security_group_id])
   }
 
   termination_protection            = var.termination_protection

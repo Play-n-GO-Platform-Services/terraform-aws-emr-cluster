@@ -348,3 +348,52 @@ variable "master_ingress_custom_ipv6_cidr_blocks" {
   default     = []
   description = "List of CIDR blocks to be allowed to access the master instances"
 }
+
+#allow the emr to be created under same vpc and subnets
+variable "use_existing_subnets" {
+  type = bool
+  default = false
+  description = "Variable to indicate if we can use the existing subnets of existing VPC to create EMR"
+}
+
+variable "master_managed_sec_group" {
+    type        = list(string)
+    description = "List of master managed security groups"
+    default     = []
+}
+
+variable "slave_managed_sec_group" {
+    type        = list(string)
+    description = "List of slave managed security groups"
+    default     = []
+}
+
+variable "master_sec_group" {
+    type        = list(string)
+    description = "List of master security groups"
+    default     = []
+}
+
+variable "slave_sec_group" {
+    type        = list(string)
+    description = "List of slave security groups"
+    default     = []
+}
+
+variable "master_ssh_sec_group" {
+    type        = list(string)
+    description = "List of master ssh security groups"
+    default     = []
+}
+
+variable "slave_ssh_sec_group" {
+    type        = list(string)
+    description = "List of slave ssh security groups"
+    default     = []
+}
+
+variable "master_custom_sec_group" {
+    type        = list(string)
+    description = "List of master custom security groups"
+    default     = []
+}
